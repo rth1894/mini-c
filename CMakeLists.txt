@@ -8,8 +8,9 @@ include_directories(include)
 
 add_executable(
     mini-c
-    src/main.cpp
-    src/lexer.cpp
-    src/parser.cpp
     src/ast.cpp
+    src/ast_printer.cpp
+    src/lexer.cpp
+    src/main.cpp
+    src/parser.cpp
 )

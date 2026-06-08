@@ -1,16 +1,23 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 struct ASTNode {
     virtual ~ASTNode() = default;
 };
 
-using ASTPtr = std::unique_ptr<ASTNode>;
+struct Expr : ASTNode {
+    virtual ~Expr() = default;
+};
 
-struct Expr : ASTNode {};
+struct Stmt : ASTNode {
+    virtual ~Stmt() = default;
+};
+
+using ExprPtr = std::unique_ptr<Expr>;
+using StmtPtr = std::unique_ptr<Stmt>;
 
 struct NumberExpr : Expr {
     int value;
@@ -19,7 +26,7 @@ struct NumberExpr : Expr {
 
 struct VariableExpr : Expr {
     std::string name;
-    explicit VariableExpr(std::string n) : name(std::move(n)) {}
+    explicit VariableExpr(std::string name) : name(std::move(name)) {}
 };
 
 struct BinaryExpr : Expr {
@@ -29,10 +36,15 @@ struct BinaryExpr : Expr {
 
     BinaryExpr(
         std::string op,
-        std::unique_ptr<Expr> lhs,
-        std::unique_ptr<Expr> rhs
+        ExprPtr lhs,
+        ExprPtr rhs
     )
         : op(std::move(op)),
           lhs(std::move(lhs)),
           rhs(std::move(rhs)) {}
+};
+
+struct ReturnStmt : Stmt {
+    ExprPtr expr;
+    explicit ReturnStmt ( ExprPtr expr ) : expr(std::move(expr)) {}
 };

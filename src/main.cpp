@@ -1,7 +1,9 @@
 #include <fstream>
 #include <iostream>
 
+#include "../include/ast_printer.h"
 #include "../include/lexer.h"
+#include "../include/parser.h"
 
 int main(int argc, char** argv) {
     if (argc != 2) {
@@ -18,7 +20,9 @@ int main(int argc, char** argv) {
     Lexer lexer(source);
     auto tokens = lexer.tokenize();
 
-    for (const auto& token : tokens) {
-        std::cout << token.lexeme << "\n";
-    }
+    Parser parser(tokens);
+    auto stmt = parser.parseStatement();
+
+    ASTPrinter printer;
+    printer.print(stmt.get());
 }
