@@ -9,6 +9,12 @@ void ASTPrinter::printIndent(int indent) {
 void ASTPrinter::print(const ASTNode* node, int indent) {
     if (!node) return;
 
+    if (auto program = dynamic_cast<const Program*> (node)) {
+        std::cout << "Program\n";
+        for (const auto& stmt : program->statements) print(stmt.get(), indent + 1);
+        return;
+    }
+
     if (auto num = dynamic_cast<const NumberExpr*>(node)) {
         printIndent(indent);
         std::cout << "Number(" << num->value << ")\n";
@@ -36,6 +42,13 @@ void ASTPrinter::print(const ASTNode* node, int indent) {
         printIndent(indent);
         std::cout << "Return\n";
         print( ret->expr.get(), indent + 1);
+        return;
+    }
+
+    if (auto decl = dynamic_cast<const VariableDecl*>(node)) {
+        printIndent(indent);
+        std::cout << "VariableDecl(" << decl->name << ")\n";
+        print(decl->initializer.get(), indent+1);
         return;
     }
 }

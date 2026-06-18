@@ -48,3 +48,17 @@ struct ReturnStmt : Stmt {
     ExprPtr expr;
     explicit ReturnStmt ( ExprPtr expr ) : expr(std::move(expr)) {}
 };
+
+struct Program : ASTNode {
+    std::vector<StmtPtr> statements;
+};
+
+struct VariableDecl : Stmt {
+    std::string name;
+    ExprPtr initializer;
+
+    VariableDecl( std::string name, ExprPtr initializer ) :
+        name ( std::move(name)), initializer(std::move(initializer))
+    {
+    }
+};

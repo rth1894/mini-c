@@ -71,12 +71,37 @@ ExprPtr Parser::parseExpression() {
 }
 
 StmtPtr Parser::parseStatement() {
+    if (current().type == TokenType::KW_INT) return parseVariableDeclaration();
+
     if (match(TokenType::KW_RETURN)) {
         auto expr = parseExpression();
+
         if (!match(TokenType::SEMICOLON)) throw std::runtime_error("Expected ';'");
 
         return std::make_unique<ReturnStmt>(std::move(expr));
     }
+    throw std::runtime_error("Unknown statement");
+}
 
-    throw std::runtime_error("Expected statement");
+StmtPtr Parser::parseVariableDeclaration() {
+    if (!match(TokenType::KW_INT)) return nullptr;
+    if (!match(TokenType::IDENTIFIER)) throw std::runtime_error("Expected variable name");
+
+    std::string name = previous().lexeme;
+
+    if (!match(TokenType::ASSIGN)) throw std::runtime_error("Expected '='");
+    auto init = parseExpression();
+
+    if (!match(TokenType::SEMICOLON)) throw std::runtime_error("Expected ';'");
+
+    return std::make_unique<VariableDecl>( name, std::move(init) );
+}
+
+std::unique_ptr<Program> Parser::parseProgram() {
+    auto program = std::make_unique<Program >();
+
+    while (current().type != TokenType::END)
+        program->statements.push_back(parseStatement());
+
+    return program;
 }

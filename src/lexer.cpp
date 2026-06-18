@@ -119,6 +119,11 @@ std::vector<Token> Lexer::tokenize() {
                 advance();
                 break;
 
+            case '=':
+                tokens.push_back({TokenType::ASSIGN, "=", line_, col_});
+                advance();
+                break;
+
             case '(':
                 tokens.push_back({TokenType::LPAREN, "(", line_, col_});
                 advance();

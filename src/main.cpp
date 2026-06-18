@@ -4,6 +4,7 @@
 #include "../include/ast_printer.h"
 #include "../include/lexer.h"
 #include "../include/parser.h"
+#include "../include/semantic_analyzer.h"
 
 int main(int argc, char** argv) {
     if (argc != 2) {
@@ -20,9 +21,18 @@ int main(int argc, char** argv) {
     Lexer lexer(source);
     auto tokens = lexer.tokenize();
 
-    Parser parser(tokens);
-    auto stmt = parser.parseStatement();
+    try {
+        Parser parser(tokens);
+        auto program = parser.parseProgram();
 
-    ASTPrinter printer;
-    printer.print(stmt.get());
+        SemanticAnalyzer semantic;
+        semantic.analyze(program.get());
+
+        ASTPrinter printer;
+        printer.print(program.get());
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error:\n" << e.what() << "\n";
+        return 1;
+    }
 }

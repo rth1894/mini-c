@@ -10,6 +10,8 @@ public:
     explicit Parser(const std::vector<Token>& tokens);
     StmtPtr parseStatement();
 
+    std::unique_ptr<Program> parseProgram();
+
 private:
     const Token& current() const;
     const Token& previous() const;
@@ -20,6 +22,8 @@ private:
     ExprPtr parseTerm();
     ExprPtr parseFactor();
     ExprPtr parsePrimary();
+
+    StmtPtr parseVariableDeclaration();
 
     size_t pos_;
 
