@@ -73,6 +73,9 @@ ExprPtr Parser::parseExpression() {
 StmtPtr Parser::parseStatement() {
     if (current().type == TokenType::KW_INT) return parseVariableDeclaration();
 
+    if (current().type == TokenType::IDENTIFIER && pos_ + 1 < tokens_.size() && tokens_[pos_ + 1].type == TokenType::ASSIGN)
+        return parseAssignmentStatement();
+
     if (match(TokenType::KW_RETURN)) {
         auto expr = parseExpression();
 
@@ -104,4 +107,21 @@ std::unique_ptr<Program> Parser::parseProgram() {
         program->statements.push_back(parseStatement());
 
     return program;
+}
+
+StmtPtr Parser::parseAssignmentStatement() {
+    if (!match(TokenType::IDENTIFIER))
+        throw std::runtime_error("Expected variable name");
+
+    std::string name = previous().lexeme;
+
+    if (!match(TokenType::ASSIGN))
+        throw std::runtime_error("Expected '='");
+
+    auto value = parseExpression();
+
+    if (!match(TokenType::SEMICOLON))
+        throw std::runtime_error("Expected ';'");
+
+    return std::make_unique<AssignmentStmt>(name, std::move(value));
 }

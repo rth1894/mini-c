@@ -23,6 +23,14 @@ void SemanticAnalyzer::analyzeStatement(Stmt* stmt) {
         analyzeExpression(ret->expr.get());
         return;
     }
+
+    if (auto assign = dynamic_cast<AssignmentStmt*>(stmt)) {
+        if (!symbols_.exist(assign->name))
+            throw std::runtime_error("Undefined variable '" + assign->name + "'");
+
+        analyzeExpression(assign->value.get());
+        return;
+    }
 }
 
 void SemanticAnalyzer::analyzeExpression(Expr* expr) {

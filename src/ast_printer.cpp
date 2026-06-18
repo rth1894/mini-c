@@ -51,4 +51,11 @@ void ASTPrinter::print(const ASTNode* node, int indent) {
         print(decl->initializer.get(), indent+1);
         return;
     }
+
+    if (auto assign = dynamic_cast<const AssignmentStmt*>(node)) {
+        printIndent(indent);
+        std::cout << "Assignment(" << assign->name << ")\n";
+        print(assign->value.get(), indent + 1);
+        return;
+    }
 }

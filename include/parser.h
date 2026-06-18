@@ -24,6 +24,7 @@ private:
     ExprPtr parsePrimary();
 
     StmtPtr parseVariableDeclaration();
+    StmtPtr parseAssignmentStatement();
 
     size_t pos_;
 

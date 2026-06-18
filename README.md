@@ -10,6 +10,7 @@ small compiler for a subset of the C programming language, in cpp.
 * Integer literals
 * Identifiers
 * Keywords:
+
   * `int`
   * `return`
   * `if`
@@ -17,12 +18,18 @@ small compiler for a subset of the C programming language, in cpp.
   * `while`
 
 * Arithmetic operators:
+
   * `+`
   * `-`
   * `*`
   * `/`
 
+* Assignment operator:
+
+  * `=`
+
 * Delimiters:
+
   * `(`
   * `)`
   * `{`
@@ -34,7 +41,14 @@ small compiler for a subset of the C programming language, in cpp.
 * Recursive-descent parser
 * Expression parsing with operator precedence
 * Parenthesized expressions
+* Variable declarations
+* Assignment statements
 * Return statements
+
+### Semantic Analysis
+
+* Symbol table
+* Undefined variable detection
 
 ### Abstract Syntax Tree (AST)
 
@@ -43,7 +57,10 @@ Supported nodes:
 * Number expressions
 * Variable expressions
 * Binary expressions
+* Variable declarations
+* Assignment statements
 * Return statements
+* Program root node
 
 ### AST Visualization
 
@@ -112,5 +129,8 @@ Source Code
     |
    AST
     |
+Semantic Analysis
+    |
 AST Printer
 ```
+
