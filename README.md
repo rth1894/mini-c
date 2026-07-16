@@ -43,24 +43,38 @@ small compiler for a subset of the C programming language, in cpp.
 * Parenthesized expressions
 * Variable declarations
 * Assignment statements
+* Comparison statements (`==`, `!=`, `>=`, `<=`, `>`, `<`)
+* `if` statements
+* `while` loops (for and do while later)
+* Function declarations
+* Function calls
 * Return statements
 
 ### Semantic Analysis
 
-* Symbol table
+* Scoped symbol table
+* Function symbol table
 * Undefined variable detection
+* Undefined function detection
+* Function redefinition detection
+* Function argument count validation
+* Variable redefinition detection
 
 ### Abstract Syntax Tree (AST)
 
 Supported nodes:
 
+* Program root node
+* Function declarations
 * Number expressions
 * Variable expressions
 * Binary expressions
+* Function call expressions
 * Variable declarations
 * Assignment statements
+* `if` statements
+* `while` loops
 * Return statements
-* Program root node
 
 ### AST Visualization
 
@@ -69,35 +83,46 @@ Printing of generated ASTs for debugging and compiler development.
 Example:
 
 ```c
-return 5 + 3 * 9;
+int main() {
+        return 5 + 3 * 9;
+}
 ```
 
 AST:
 
 ```text
-Return
-  Binary(+)
-    Number(5)
-    Binary(*)
-      Number(3)
-      Number(9)
+Program
+  Function(main)
+    Body
+      Return
+        Binary(+)
+          Number(5)
+          Binary(*)
+            Number(3)
+            Number(9)
 ```
 
 The parser correctly handles operator precedence:
 
 ```c
-return (5 + 3) * 9;
+int main()
+{
+    return (5 + 3) * 9;
+}
 ```
 
 AST:
 
 ```text
-Return
-  Binary(*)
-    Binary(+)
-      Number(5)
-      Number(3)
-    Number(9)
+Program
+  Function(main)
+    Body
+      Return
+        Binary(*)
+          Binary(+)
+            Number(5)
+            Number(3)
+          Number(9)
 ```
 
 ## Build
@@ -125,7 +150,7 @@ Source Code
     |
   Tokens
     |
-  Parser
+  Recursive-Descent Parser
     |
    AST
     |
@@ -134,3 +159,18 @@ Semantic Analysis
 AST Printer
 ```
 
+---
+
+#### TODO
+
+- [ ] Type checking
+- [ ] Implicit/explicit type conversions
+- [ ] Three-Address Code (TAC) generation
+- [ ] Control Flow Graph (CFG)
+- [ ] Basic optimization passes
+  - [ ] Constant folding
+  - [ ] Constant propagation
+  - [ ] Dead code elimination
+  - [ ] Copy propagation
+- [ ] LLVM IR backend
+- [ ] x86-64 backend
