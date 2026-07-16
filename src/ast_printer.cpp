@@ -58,4 +58,33 @@ void ASTPrinter::print(const ASTNode* node, int indent) {
         print(assign->value.get(), indent + 1);
         return;
     }
+
+    if (auto ifStmt = dynamic_cast<const IfStmt*>(node)) {
+        printIndent(indent);
+        std::cout << "If\n";
+        printIndent(indent + 1);
+
+        std::cout << "Condition\n";
+        print(ifStmt->condition.get(), indent + 2);
+
+        printIndent(indent + 1);
+        std::cout << "Body\n";
+
+        for (const auto& stmt : ifStmt->body) print (stmt.get(), indent + 2);
+        return;
+    }
+
+    if (auto whileStmt = dynamic_cast<const WhileStmt*>(node)) {
+        printIndent(indent);
+        std::cout << "While\n";
+        printIndent(indent + 1);
+
+        std::cout << "Condition\n";
+        print(whileStmt->condition.get(), indent + 2);
+        printIndent(indent + 1);
+
+        std::cout << "Body\n";
+        for (const auto& stmt : whileStmt->body) print(stmt.get(), indent + 2);
+        return;
+    }
 }

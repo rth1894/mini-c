@@ -31,6 +31,25 @@ void SemanticAnalyzer::analyzeStatement(Stmt* stmt) {
         analyzeExpression(assign->value.get());
         return;
     }
+
+    if (auto ifStmt = dynamic_cast<IfStmt*>(stmt)) {
+        analyzeExpression(ifStmt->condition.get());
+        symbols_.pushScope();
+
+        for (auto& statement : ifStmt->body) analyzeStatement(statement.get());
+        symbols_.popScope();
+        return;
+    }
+
+    if (auto whileStmt = dynamic_cast<WhileStmt*>(stmt)) {
+        analyzeExpression(whileStmt->condition.get());
+        symbols_.pushScope();
+
+        for (auto& statement : whileStmt-> body) analyzeStatement(statement.get());
+        symbols_.popScope();
+        return;
+    }
+    
 }
 
 void SemanticAnalyzer::analyzeExpression(Expr* expr) {

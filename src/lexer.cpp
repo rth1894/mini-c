@@ -1,6 +1,7 @@
 #include "../include/lexer.h"
 
 #include <cctype>
+#include <stdexcept>
 #include <unordered_map>
 
 Lexer::Lexer(const std::string& source)
@@ -100,54 +101,127 @@ std::vector<Token> Lexer::tokenize() {
 
         switch (current()) {
             case '+':
+            {
                 tokens.push_back({TokenType::PLUS, "+", line_, col_});
                 advance();
                 break;
+            }
 
             case '-':
+            {
                 tokens.push_back({TokenType::MINUS, "-", line_, col_});
                 advance();
                 break;
+            }
 
             case '*':
+            {
                 tokens.push_back({TokenType::STAR, "*", line_, col_});
                 advance();
                 break;
+            }
 
             case '/':
+            {
                 tokens.push_back({TokenType::SLASH, "/", line_, col_});
                 advance();
                 break;
+            }
 
             case '=':
-                tokens.push_back({TokenType::ASSIGN, "=", line_, col_});
-                advance();
+            {
+                int start = col_;
+                if (peek() == '=') {
+                    advance();
+                    advance();
+                    tokens.push_back({TokenType::EQ, "==", line_, start});
+                }
+                else {
+                    tokens.push_back({TokenType::ASSIGN, "=", line_, start});
+                    advance();
+                }
                 break;
+            }
+
+            case '!':
+            {
+                int start = col_;
+                if (peek() == '=') {
+                    advance();
+                    advance();
+                    tokens.push_back({TokenType::NEQ, "!=", line_, start});
+                }
+                else {
+                    throw std::runtime_error("Unexpected character '!'");
+                    advance();
+                }
+                break;
+            }
+
+            case '>':
+            {
+                int start = col_;
+                if (peek() == '=') {
+                    advance();
+                    advance();
+                    tokens.push_back({TokenType::GE, ">=", line_, start});
+                }
+                else {
+                    tokens.push_back({TokenType::GT, ">", line_, start});
+                    advance();
+                }
+                break;
+            }
+
+            case '<':
+            {
+                int start = col_;
+                if (peek() == '=') {
+                    advance();
+                    advance();
+                    tokens.push_back({TokenType::LE, "<=", line_, start});
+                }
+                else {
+                    tokens.push_back({TokenType::LT, "<", line_, start});
+                    advance();
+                }
+                break;
+            }
 
             case '(':
+            {
                 tokens.push_back({TokenType::LPAREN, "(", line_, col_});
                 advance();
                 break;
+            }
 
             case ')':
+            {
                 tokens.push_back({TokenType::RPAREN, ")", line_, col_});
                 advance();
                 break;
+            }
 
             case '{':
+            {
                 tokens.push_back({TokenType::LBRACE, "{", line_, col_});
                 advance();
                 break;
+            }
 
             case '}':
+            {
                 tokens.push_back({TokenType::RBRACE, "}", line_, col_});
                 advance();
                 break;
+            }
 
             case ';':
+            {
                 tokens.push_back({TokenType::SEMICOLON, ";", line_, col_});
                 advance();
                 break;
+            }
 
             default:
                 advance();

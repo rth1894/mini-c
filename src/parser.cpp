@@ -67,7 +67,26 @@ ExprPtr Parser::parseTerm() {
 }
 
 ExprPtr Parser::parseExpression() {
-    return parseTerm();
+    return parseComparison();
+}
+
+ExprPtr Parser::parseComparison() {
+    auto left = parseTerm();
+
+    while (current().type == TokenType::EQ ||
+           current().type == TokenType::NEQ ||
+           current().type == TokenType::LT ||
+           current().type == TokenType::LE ||
+           current().type == TokenType::GT ||
+           current().type == TokenType::GE
+      ) {
+        std::string op = current().lexeme;
+        pos_++;
+
+        auto right = parseTerm();
+        left = std::make_unique<BinaryExpr>(op, std::move(left), std::move(right));
+    }
+    return left;
 }
 
 StmtPtr Parser::parseStatement() {
@@ -83,6 +102,11 @@ StmtPtr Parser::parseStatement() {
 
         return std::make_unique<ReturnStmt>(std::move(expr));
     }
+
+    if (current().type == TokenType::KW_IF) return parseIfStatement();
+
+    if (current().type == TokenType::KW_WHILE) return parseWhileStatement();
+
     throw std::runtime_error("Unknown statement");
 }
 
@@ -124,4 +148,41 @@ StmtPtr Parser::parseAssignmentStatement() {
         throw std::runtime_error("Expected ';'");
 
     return std::make_unique<AssignmentStmt>(name, std::move(value));
+}
+
+StmtPtr Parser::parseIfStatement() {
+    if (!match(TokenType::KW_IF)) throw std::runtime_error("Expected 'if'");
+    if (!match(TokenType::LPAREN)) throw std::runtime_error("Expected '('");
+    
+    auto condition = parseExpression();
+
+    if (!match(TokenType::RPAREN)) throw std::runtime_error("Expected ')'");
+    if (!match(TokenType::LBRACE)) throw std::runtime_error("Expected '{'");
+
+    std::vector<StmtPtr> body;
+    while (current().type != TokenType::RBRACE && current().type != TokenType::END) {
+        body.push_back(parseStatement());
+    }
+    if (!match(TokenType::RBRACE)) throw std::runtime_error("Expected '}'");
+
+    return std::make_unique<IfStmt>(std::move(condition), std::move(body));
+}
+
+StmtPtr Parser::parseWhileStatement() {
+    if (!match(TokenType::KW_WHILE)) throw std::runtime_error("Expected 'while'");
+    if (!match(TokenType::LPAREN)) throw std::runtime_error("Expected '('");
+
+    auto condition = parseExpression();
+
+    if (!match(TokenType::RPAREN)) throw std::runtime_error("Expected ')'");
+    if (!match(TokenType::LBRACE)) throw std::runtime_error("Expected '{'");
+
+    std::vector<StmtPtr> body;
+    while (current().type != TokenType::RBRACE && current().type != TokenType::END) {
+        body.push_back(parseStatement());
+    }
+
+    if (!match(TokenType::RBRACE)) throw std::runtime_error("Expected '}'");
+
+    return std::make_unique<WhileStmt>(std::move(condition), std::move(body));
 }

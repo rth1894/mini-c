@@ -19,12 +19,15 @@ private:
     bool match(TokenType type);
 
     ExprPtr parseExpression();
+    ExprPtr parseComparison();
     ExprPtr parseTerm();
     ExprPtr parseFactor();
     ExprPtr parsePrimary();
 
     StmtPtr parseVariableDeclaration();
     StmtPtr parseAssignmentStatement();
+    StmtPtr parseIfStatement();
+    StmtPtr parseWhileStatement();
 
     size_t pos_;
 

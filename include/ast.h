@@ -70,3 +70,20 @@ struct AssignmentStmt : Stmt {
     AssignmentStmt(std::string name, ExprPtr value) :
         name(std::move(name)), value(std::move(value)) {}
 };
+
+// using vec because `if` can have multiple statements 
+struct IfStmt: Stmt {
+    ExprPtr condition;
+    std::vector<StmtPtr> body;
+
+    IfStmt(ExprPtr condition, std::vector<StmtPtr> body) :
+        condition(std::move(condition)), body(std::move(body)) {}
+};
+
+struct WhileStmt: Stmt {
+    ExprPtr condition;
+    std::vector<StmtPtr> body;
+
+    WhileStmt(ExprPtr condition, std::vector<StmtPtr> body) :
+        condition(std::move(condition)), body(std::move(body)) {}
+};
