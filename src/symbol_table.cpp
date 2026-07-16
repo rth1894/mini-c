@@ -23,3 +23,15 @@ bool SymbolTable::exist(const std::string& name) const {
     }
     return false;
 }
+
+bool SymbolTable::functionExists(const std::string& name) const {
+    return functions_.find(name) != functions_.end();
+}
+
+bool SymbolTable::declareFunction(const std::string& name, std::size_t parameterCount) {
+    return functions_.insert({name, parameterCount}).second;
+}
+
+std::size_t SymbolTable::parameterCount (const std::string& name) const {
+    return functions_.at(name);
+}

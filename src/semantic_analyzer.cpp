@@ -3,8 +3,21 @@
 #include <iostream>
 
 void SemanticAnalyzer::analyze(Program* prog) {
-    for (auto& decl : prog->declarations)
-        if (auto func = dynamic_cast<FunctionDecl*>(decl.get())) analyzeFunction(func);
+    // collect func signature
+    for (auto& decl : prog->declarations) {
+        auto* func = dynamic_cast<FunctionDecl*>(decl.get());
+
+        if (!func) continue;
+
+        if (!symbols_.declareFunction(func->name, func->parameters.size()))
+            throw std::runtime_error("Redefinition of function '" + func->name + "'");
+    }
+
+    // analyze every func body
+    for (auto& decl : prog->declarations) {
+        auto* func = dynamic_cast<FunctionDecl*>(decl.get());
+        if (func) analyzeFunction(func);
+    }
 }
 
 void SemanticAnalyzer::analyzeStatement(Stmt* stmt) {
@@ -64,6 +77,16 @@ void SemanticAnalyzer::analyzeExpression(Expr* expr) {
     if (auto bin = dynamic_cast<BinaryExpr*>(expr)) {
         analyzeExpression(bin->lhs.get());
         analyzeExpression(bin->rhs.get());
+        return;
+    }
+
+    if (auto call = dynamic_cast<CallExpr*>(expr)) {
+        if (!symbols_.functionExists(call->who)) throw std::runtime_error("Undefined function '" + call->who + "'");
+
+        if (call->arguments.size() != symbols_.parameterCount(call->who))
+            throw std::runtime_error("Incorrect number of args in call to '" + call->who + "'");
+
+        for (auto& arg : call ->arguments) analyzeExpression(arg.get());
         return;
     }
 }
