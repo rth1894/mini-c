@@ -3,8 +3,8 @@
 #include <iostream>
 
 void SemanticAnalyzer::analyze(Program* prog) {
-    for (auto& stmt : prog->statements)
-        analyzeStatement(stmt.get());
+    for (auto& decl : prog->declarations)
+        if (auto func = dynamic_cast<FunctionDecl*>(decl.get())) analyzeFunction(func);
 }
 
 void SemanticAnalyzer::analyzeStatement(Stmt* stmt) {
@@ -66,4 +66,13 @@ void SemanticAnalyzer::analyzeExpression(Expr* expr) {
         analyzeExpression(bin->rhs.get());
         return;
     }
+}
+
+void SemanticAnalyzer::analyzeFunction(FunctionDecl* func) {
+    symbols_.pushScope();
+    for (const auto& param : func->parameters)
+        if (!symbols_.declare(param)) throw std::runtime_error("Duplicate parameter '" + param + "'");
+
+    for (auto& stmt : func->body) analyzeStatement(stmt.get());
+    symbols_.popScope();
 }

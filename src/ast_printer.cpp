@@ -11,7 +11,7 @@ void ASTPrinter::print(const ASTNode* node, int indent) {
 
     if (auto program = dynamic_cast<const Program*> (node)) {
         std::cout << "Program\n";
-        for (const auto& stmt : program->statements) print(stmt.get(), indent + 1);
+        for (const auto& decl : program->declarations) print(decl.get(), indent + 1);
         return;
     }
 
@@ -85,6 +85,25 @@ void ASTPrinter::print(const ASTNode* node, int indent) {
 
         std::cout << "Body\n";
         for (const auto& stmt : whileStmt->body) print(stmt.get(), indent + 2);
+        return;
+    }
+
+    if (auto func = dynamic_cast<const FunctionDecl*>(node)) {
+        printIndent(indent);
+        std::cout << "Function(" << func->name << ")\n";
+
+        if (!func->parameters.empty()) {
+            printIndent(indent + 1);
+            std::cout << "Parameters\n";
+            for (const auto& param : func->parameters) {
+                printIndent(indent + 2);
+                std::cout << param << "\n";
+            }
+        }
+
+        printIndent(indent + 1);
+        std::cout << "Body\n";
+        for (const auto& stmt : func->body) print(stmt.get(), indent + 2);
         return;
     }
 }

@@ -29,6 +29,8 @@ private:
     StmtPtr parseIfStatement();
     StmtPtr parseWhileStatement();
 
+    DeclPtr parseFunction();
+
     size_t pos_;
 
     std::vector<Token> tokens_;

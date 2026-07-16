@@ -14,4 +14,5 @@ class SemanticAnalyzer {
         SymbolTable symbols_;
         void analyzeStatement(Stmt* stmt);
         void analyzeExpression(Expr* expr);
+        void analyzeFunction(FunctionDecl* func);
 };

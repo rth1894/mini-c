@@ -16,8 +16,13 @@ struct Stmt : ASTNode {
     virtual ~Stmt() = default;
 };
 
+struct Decl : ASTNode {
+    virtual ~Decl() = default;
+};
+
 using ExprPtr = std::unique_ptr<Expr>;
 using StmtPtr = std::unique_ptr<Stmt>;
+using DeclPtr = std::unique_ptr<Decl>;
 
 struct NumberExpr : Expr {
     int value;
@@ -50,7 +55,16 @@ struct ReturnStmt : Stmt {
 };
 
 struct Program : ASTNode {
-    std::vector<StmtPtr> statements;
+    std::vector<DeclPtr> declarations;
+};
+
+struct FunctionDecl : Decl {
+    std::string name;
+    std::vector<std::string> parameters;
+    std::vector<StmtPtr> body;
+
+    FunctionDecl(std::string name, std::vector<std::string> parameters, std::vector<StmtPtr> body) :
+        name (std::move(name)), parameters(std::move(parameters)), body(std::move(body)) {}
 };
 
 struct VariableDecl : Stmt {
@@ -59,8 +73,7 @@ struct VariableDecl : Stmt {
 
     VariableDecl( std::string name, ExprPtr initializer ) :
         name ( std::move(name)), initializer(std::move(initializer))
-    {
-    }
+    {}
 };
 
 struct AssignmentStmt : Stmt {
