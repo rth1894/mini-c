@@ -223,6 +223,13 @@ std::vector<Token> Lexer::tokenize() {
                 break;
             }
 
+            case ',':
+            {
+                tokens.push_back({TokenType::COMMA, ",", line_, col_});
+                advance();
+                break;
+            }
+
             default:
                 advance();
         }

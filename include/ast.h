@@ -34,6 +34,14 @@ struct VariableExpr : Expr {
     explicit VariableExpr(std::string name) : name(std::move(name)) {}
 };
 
+struct CallExpr : Expr {
+    std::string who;
+    std::vector<ExprPtr> arguments;
+
+    CallExpr(std::string who, std::vector<ExprPtr> arguments) :
+        who(std::move(who)), arguments(std::move(arguments)) {}
+};
+
 struct BinaryExpr : Expr {
     std::string op;
     std::unique_ptr<Expr> lhs;

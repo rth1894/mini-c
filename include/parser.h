@@ -15,6 +15,7 @@ public:
 private:
     const Token& current() const;
     const Token& previous() const;
+    const Token& peek() const;
 
     bool match(TokenType type);
 

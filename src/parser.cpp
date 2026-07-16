@@ -15,6 +15,10 @@ const Token& Parser::previous() const {
     return tokens_[pos_ - 1];
 }
 
+const Token& Parser::peek() const {
+    return tokens_[pos_ + 1];
+}
+
 bool Parser::match(TokenType type) {
     if (current().type != type) return false;
 
@@ -26,8 +30,26 @@ ExprPtr Parser::parsePrimary() {
     if (match(TokenType::INTEGER))
         return std::make_unique<NumberExpr>(std::stoi(previous().lexeme));
 
-    if (match(TokenType::IDENTIFIER))
-        return std::make_unique<VariableExpr>(previous().lexeme);
+    if (match(TokenType::IDENTIFIER)) {
+        std::string name = previous().lexeme;
+
+        if (match(TokenType::LPAREN)) {
+            std::vector<ExprPtr> arguments;
+
+            if (current().type != TokenType::RPAREN) {
+                do {
+                    arguments.push_back(parseExpression());
+                }
+                while(match(TokenType::COMMA));
+            }
+
+            if (!match(TokenType::RPAREN)) throw std::runtime_error("Expected ')'");
+
+            return std::make_unique<CallExpr>(name, std::move(arguments));
+        }
+        // is variable
+        return std::make_unique<VariableExpr>(name);
+    }
 
     if (match(TokenType::LPAREN)) {
         auto expr = parseExpression();

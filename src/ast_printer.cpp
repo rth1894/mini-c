@@ -38,6 +38,14 @@ void ASTPrinter::print(const ASTNode* node, int indent) {
         return;
     }
 
+    if (auto call = dynamic_cast<const CallExpr*>(node)) {
+        printIndent(indent);
+        std::cout << "Call(" << call->who << ")\n";
+
+        for (const auto& arg : call->arguments) print(arg.get(), indent + 1);
+        return;
+    }
+
     if (auto ret = dynamic_cast<const ReturnStmt*>(node)) {
         printIndent(indent);
         std::cout << "Return\n";
