@@ -15,4 +15,5 @@ add_executable(
     src/parser.cpp
     src/symbol_table.cpp
     src/semantic_analyzer.cpp
+    src/type_checker.cpp
 )

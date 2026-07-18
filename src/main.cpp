@@ -5,6 +5,7 @@
 #include "../include/lexer.h"
 #include "../include/parser.h"
 #include "../include/semantic_analyzer.h"
+#include "../include/type_checker.h"
 
 int main(int argc, char** argv) {
     if (argc != 2) {
@@ -27,6 +28,9 @@ int main(int argc, char** argv) {
 
         SemanticAnalyzer semantic;
         semantic.analyze(program.get());
+
+        TypeChecker checker;
+        checker.check(program.get());
 
         ASTPrinter printer;
         printer.print(program.get());
