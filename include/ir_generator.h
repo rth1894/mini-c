@@ -11,6 +11,6 @@ class IRGenerator {
         int tempCounter_ = 0;
         std::string newTemp();
 
-        void generateStatement(Stmt* stmt, TACProgram* program);
+        void generateStatement(Stmt* stmt, TACProgram& program);
         std::string generateExpression(Expr* expr, TACProgram& program);
 };
