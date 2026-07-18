@@ -8,7 +8,10 @@ class IRGenerator {
     public:
         TACProgram generate(Program* program);
     private:
+        int labelCounter_ = 0;
         int tempCounter_ = 0;
+
+        std::string newLabel();
         std::string newTemp();
 
         void generateStatement(Stmt* stmt, TACProgram& program);

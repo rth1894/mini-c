@@ -1,7 +1,9 @@
 #include <fstream>
 #include <iostream>
 
-#include "../include/ast_printer.h"
+// #include "../include/ast_printer.h"
+#include "../include/ir_generator.h"
+#include "../include/ir_printer.h"
 #include "../include/lexer.h"
 #include "../include/parser.h"
 #include "../include/semantic_analyzer.h"
@@ -32,8 +34,15 @@ int main(int argc, char** argv) {
         TypeChecker checker;
         checker.check(program.get());
 
+        IRGenerator generator;
+        auto ir = generator.generate(program.get());
+        IRPrinter printer;
+        printer.print(ir);
+        /*
+         *
         ASTPrinter printer;
         printer.print(program.get());
+        */
     }
     catch (const std::exception& e) {
         std::cerr << "Error:\n" << e.what() << "\n";

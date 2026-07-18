@@ -10,6 +10,8 @@ add_executable(
     mini-c
     src/ast.cpp
     src/ast_printer.cpp
+    src/ir_generator.cpp
+    src/ir_printer.cpp
     src/lexer.cpp
     src/main.cpp
     src/parser.cpp
