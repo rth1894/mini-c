@@ -28,6 +28,15 @@ small compiler for a subset of the C programming language, in cpp.
 
   * `=`
 
+* Comparison operators:
+
+  * `==`
+  * `!=`
+  * `>`
+  * `>=`
+  * `<`
+  * `<=`
+
 * Delimiters:
 
   * `(`
@@ -43,9 +52,9 @@ small compiler for a subset of the C programming language, in cpp.
 * Parenthesized expressions
 * Variable declarations
 * Assignment statements
-* Comparison statements (`==`, `!=`, `>=`, `<=`, `>`, `<`)
+* Comparison expressions
 * `if` statements
-* `while` loops (for and do while later)
+* `while` loops
 * Function declarations
 * Function calls
 * Return statements
@@ -76,6 +85,60 @@ Supported nodes:
 * `while` loops
 * Return statements
 
+### Three-Address Code (TAC)
+
+Generates TAC for:
+
+* Function definitions
+* Function calls
+* Arithmetic expressions
+* Variable declarations
+* Assignment statements
+* Comparison expressions
+* `if` statements
+* `while` loops
+* Return statements
+
+Example:
+
+```text
+function add:
+t0 = a + b
+return t0
+
+function main:
+param 2
+param 3
+t1 = call add, 2
+return t1
+```
+
+### Optimizations
+
+Implemented optimization passes:
+
+* Constant folding
+* Constant propagation
+* Dead code elimination
+
+Example:
+
+Before:
+
+```text
+function main:
+t0 = 3 * 2
+t1 = 5 + t0
+return t1
+```
+
+After optimization:
+
+```text
+function main:
+return 11
+```
+
 ### AST Visualization
 
 Printing of generated ASTs for debugging and compiler development.
@@ -84,7 +147,7 @@ Example:
 
 ```c
 int main() {
-        return 5 + 3 * 9;
+    return 5 + 3 * 9;
 }
 ```
 
@@ -105,8 +168,7 @@ Program
 The parser correctly handles operator precedence:
 
 ```c
-int main()
-{
+int main() {
     return (5 + 3) * 9;
 }
 ```
@@ -143,20 +205,27 @@ cmake --build .
 
 ## Pipeline
 
-```
+```text
 Source Code
     |
   Lexer
     |
   Tokens
     |
-  Recursive-Descent Parser
+Recursive-Descent Parser
     |
    AST
     |
 Semantic Analysis
     |
-AST Printer
+TAC Generation
+    |
+Optimization
+    |
+Backend
+    |
+Current: TAC Printer
+Next: LLVM IR
 ```
 
 ---
@@ -165,12 +234,7 @@ AST Printer
 
 - [ ] Type checking
 - [ ] Implicit/explicit type conversions
-- [ ] Three-Address Code (TAC) generation
 - [ ] Control Flow Graph (CFG)
-- [ ] Basic optimization passes
-  - [ ] Constant folding
-  - [ ] Constant propagation
-  - [ ] Dead code elimination
-  - [ ] Copy propagation
-- [ ] LLVM IR backend
-- [ ] x86-64 backend
+- [ ] Copy propagation
+- [ ] LLVM IR generation
+- [ ] x86-64 code generation

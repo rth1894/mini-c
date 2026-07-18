@@ -5,6 +5,7 @@
 #include "../include/ir_generator.h"
 #include "../include/ir_printer.h"
 #include "../include/lexer.h"
+#include "../include/optimizer.h"
 #include "../include/parser.h"
 #include "../include/semantic_analyzer.h"
 #include "../include/type_checker.h"
@@ -36,10 +37,14 @@ int main(int argc, char** argv) {
 
         IRGenerator generator;
         auto ir = generator.generate(program.get());
+
+        Optimizer optimizer;
+        auto optimizedIR = optimizer.optimize(ir);
+
         IRPrinter printer;
-        printer.print(ir);
+        printer.print(optimizedIR);
+
         /*
-         *
         ASTPrinter printer;
         printer.print(program.get());
         */

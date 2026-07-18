@@ -14,6 +14,7 @@ add_executable(
     src/ir_printer.cpp
     src/lexer.cpp
     src/main.cpp
+    src/optimizer.cpp
     src/parser.cpp
     src/symbol_table.cpp
     src/semantic_analyzer.cpp
