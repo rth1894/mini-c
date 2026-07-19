@@ -5,6 +5,7 @@
 #include "../include/ir_generator.h"
 #include "../include/ir_printer.h"
 #include "../include/lexer.h"
+#include "../include/llvm_generator.h"
 #include "../include/optimizer.h"
 #include "../include/parser.h"
 #include "../include/semantic_analyzer.h"
@@ -40,6 +41,14 @@ int main(int argc, char** argv) {
 
         Optimizer optimizer;
         auto optimizedIR = optimizer.optimize(ir);
+
+        LLVMGenerator llvmGen;
+        std::string llvmIR = llvmGen.generate(program.get());
+        std::ofstream out("output.ll");
+        out << llvmIR;
+        out.close();
+
+        std::cout << "Generated LLVM IR: output.ll";
 
         IRPrinter printer;
         printer.print(optimizedIR);

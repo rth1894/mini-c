@@ -13,3 +13,5 @@ CTestTestfile.cmake
 compile_commands.json
 
 notes.md
+
+*.ll

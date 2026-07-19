@@ -13,6 +13,7 @@ add_executable(
     src/ir_generator.cpp
     src/ir_printer.cpp
     src/lexer.cpp
+    src/llvm_generator.cpp
     src/main.cpp
     src/optimizer.cpp
     src/parser.cpp
