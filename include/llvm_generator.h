@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
 class LLVMGenerator {
 public:
@@ -11,11 +12,16 @@ public:
 
 private:
   int tempCounter_ = 0;
+  int labelCounter_ = 0;
   std::string nextTemp();
+  std::string nextLabel();
 
   std::ostringstream currentFunc_;
 
+  std::string generateCondition(Expr* expr);
+  std::string generateExpression(Expr *expr);
   std::string generateFunction(FunctionDecl *function);
   std::string generateStatement(Stmt *stmt);
-  std::string generateExpression(Expr *expr);
+
+  std::unordered_map<std::string, std::string> variables_;
 };
