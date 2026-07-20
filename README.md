@@ -2,6 +2,12 @@
 
 small compiler for a subset of the C programming language, in cpp.
 
+- Educational compiler that implements a compilation pipeline
+- Currently performs lexical analysis, recursive-descent parsing, semantic analysis, type checking, intermediate representation (Three-Address Code) generation, local optimizations, control-flow graph construction, and LLVM IR generation.
+
+
+See the language specification in [docs/grammar.md](docs/grammar.md).
+
 ## Current Features
 
 ### Lexical Analysis
@@ -14,7 +20,6 @@ small compiler for a subset of the C programming language, in cpp.
   * `int`
   * `return`
   * `if`
-  * `else`
   * `while`
 
 * Arithmetic operators:
@@ -57,6 +62,8 @@ small compiler for a subset of the C programming language, in cpp.
 * `while` loops
 * Function declarations
 * Function calls
+* Function parameters
+* Nested expressions
 * Return statements
 
 ### Semantic Analysis
@@ -68,6 +75,14 @@ small compiler for a subset of the C programming language, in cpp.
 * Function redefinition detection
 * Function argument count validation
 * Variable redefinition detection
+
+### Type Checking
+
+* Integer type validation
+* Assignment type checking
+* Return type checking
+* Binary expression type checking
+* Function call argument type checking
 
 ### Abstract Syntax Tree (AST)
 
@@ -97,7 +112,45 @@ Generates TAC for:
 * Comparison expressions
 * `if` statements
 * `while` loops
+* Labels
+* Conditional branches
+* Unconditional jumps
 * Return statements
+
+### Optimizer
+
+Implemented local optimization passes:
+
+- Constant folding
+- Local constant propagation
+- Dead code elimination
+
+> Note:
+> Intentionally limited to basic linear code and is reset across control-flow boundaries to preserve correctness.
+
+### Control Flow Graph
+
+The compiler constructs a Control Flow Graph from generated TAC.
+Implemented:
+
+* Basic block formation
+* Leader identification
+* Successor computation
+* Predecessor computation
+* CFG visualization
+
+### LLVM IR Generation
+
+Generates LLVM IR for:
+
+* Functions
+* Variables
+* Arithmetic expressions
+* Comparisons
+* Function calls
+* Assignments
+* Returns
+* if statements
 
 Example:
 
@@ -113,31 +166,6 @@ t1 = call add, 2
 return t1
 ```
 
-### Optimizations
-
-Implemented optimization passes:
-
-* Constant folding
-* Constant propagation
-* Dead code elimination
-
-Example:
-
-Before:
-
-```text
-function main:
-t0 = 3 * 2
-t1 = 5 + t0
-return t1
-```
-
-After optimization:
-
-```text
-function main:
-return 11
-```
 
 ### AST Visualization
 
@@ -218,23 +246,17 @@ Recursive-Descent Parser
     |
 Semantic Analysis
     |
+Type Checking
+    |
 TAC Generation
     |
 Optimization
     |
-Backend
+Control Flow Graph
     |
-Current: TAC Printer
-Next: LLVM IR
+    | -------------------> CFG Printer
+    |
+LLVM IR Generator
+    |
+output.ll
 ```
-
----
-
-#### TODO
-
-- [ ] Type checking
-- [ ] Implicit/explicit type conversions
-- [ ] Control Flow Graph (CFG)
-- [ ] Copy propagation
-- [ ] LLVM IR generation
-- [ ] x86-64 code generation
