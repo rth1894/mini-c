@@ -28,6 +28,13 @@ TACProgram Optimizer::optimize(const TACProgram& program) {
     std::unordered_set<std::string> live;
 
     for (auto inst : program) {
+        // terminated propagation at control flow to preserve correctness
+        // glocal constant propagation in the future :)
+        if (inst.op == "label" || inst.op == "goto" || inst.op == "ifFalse" || inst.op == "function") {
+            constants.clear();
+            optimized.push_back(inst);
+            continue;
+        }
         if (constants.count(inst.arg1)) inst.arg1 = constants[inst.arg1];
         if (constants.count(inst.arg2)) inst.arg2 = constants[inst.arg2];
         if (isNumber(inst.arg1) && isNumber(inst.arg2) &&
@@ -55,8 +62,13 @@ TACProgram Optimizer::optimize(const TACProgram& program) {
             result.push_back(inst);
             continue;
         }
-        if (inst.op == "label" || inst.op == "goto" || inst.op == "ifFalse" || inst.op == "function") {
-            if (inst.op == "ifFalse" && !isNumber(inst.arg1)) live.insert(inst.arg1);
+        if (inst.op == "goto" || inst.op == "label" || inst.op == "function") {
+            result.push_back(inst);
+            continue;
+        }
+
+        if (inst.op == "ifFalse") {
+            if (!inst.arg1.empty() && !isNumber(inst.arg1)) live.insert(inst.arg1);
             result.push_back(inst);
             continue;
         }

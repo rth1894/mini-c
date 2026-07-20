@@ -13,6 +13,8 @@ public:
     std::unique_ptr<Program> parseProgram();
 
 private:
+    [[noreturn]] void error(const std::string& message);
+
     const Token& current() const;
     const Token& previous() const;
     const Token& peek() const;

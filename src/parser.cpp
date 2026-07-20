@@ -1,10 +1,16 @@
 #include <stdexcept>
+#include <string>
 
 #include "../include/parser.h"
 
 Parser::Parser(const std::vector<Token>& tokens) :
     pos_(0),
     tokens_(tokens) {
+}
+
+[[noreturn]] void Parser::error(const std::string& message) {
+    const Token& token = current();
+    throw std::runtime_error("Line " + std::to_string(token.line) + ", column " + std::to_string(token.column) + ": " + message);
 }
 
 const Token& Parser::current() const {
@@ -16,6 +22,7 @@ const Token& Parser::previous() const {
 }
 
 const Token& Parser::peek() const {
+    if (pos_ + 1 >= tokens_.size()) return tokens_.back();
     return tokens_[pos_ + 1];
 }
 
@@ -43,7 +50,7 @@ ExprPtr Parser::parsePrimary() {
                 while(match(TokenType::COMMA));
             }
 
-            if (!match(TokenType::RPAREN)) throw std::runtime_error("Expected ')'");
+            if (!match(TokenType::RPAREN)) error("Expected ')'");
 
             return std::make_unique<CallExpr>(name, std::move(arguments));
         }
@@ -54,11 +61,11 @@ ExprPtr Parser::parsePrimary() {
     if (match(TokenType::LPAREN)) {
         auto expr = parseExpression();
 
-        if (!match(TokenType::RPAREN)) throw std::runtime_error("Expected ')'");
+        if (!match(TokenType::RPAREN)) error("Expected ')'");
         return expr;
     }
 
-    throw std::runtime_error("Unexpected token in expression");
+    error("Unexpected token in expression");
 }
 
 ExprPtr Parser::parseFactor() {
@@ -114,34 +121,32 @@ ExprPtr Parser::parseComparison() {
 StmtPtr Parser::parseStatement() {
     if (current().type == TokenType::KW_INT) return parseVariableDeclaration();
 
-    if (current().type == TokenType::IDENTIFIER && pos_ + 1 < tokens_.size() && tokens_[pos_ + 1].type == TokenType::ASSIGN)
+    if (current().type == TokenType::IDENTIFIER && peek().type == TokenType::ASSIGN)
         return parseAssignmentStatement();
 
     if (match(TokenType::KW_RETURN)) {
         auto expr = parseExpression();
-
-        if (!match(TokenType::SEMICOLON)) throw std::runtime_error("Expected ';'");
+        if (!match(TokenType::SEMICOLON)) error("Expected ';'");
 
         return std::make_unique<ReturnStmt>(std::move(expr));
     }
 
     if (current().type == TokenType::KW_IF) return parseIfStatement();
-
     if (current().type == TokenType::KW_WHILE) return parseWhileStatement();
 
-    throw std::runtime_error("Unknown statement");
+    error("Unknown statement");
 }
 
 StmtPtr Parser::parseVariableDeclaration() {
     if (!match(TokenType::KW_INT)) return nullptr;
-    if (!match(TokenType::IDENTIFIER)) throw std::runtime_error("Expected variable name");
+    if (!match(TokenType::IDENTIFIER)) error("Expected variable name");
 
     std::string name = previous().lexeme;
 
-    if (!match(TokenType::ASSIGN)) throw std::runtime_error("Expected '='");
+    if (!match(TokenType::ASSIGN)) error("Expected '='");
     auto init = parseExpression();
 
-    if (!match(TokenType::SEMICOLON)) throw std::runtime_error("Expected ';'");
+    if (!match(TokenType::SEMICOLON)) error("Expected ';'");
 
     return std::make_unique<VariableDecl>( name, std::move(init) );
 }
@@ -156,86 +161,83 @@ std::unique_ptr<Program> Parser::parseProgram() {
 }
 
 StmtPtr Parser::parseAssignmentStatement() {
-    if (!match(TokenType::IDENTIFIER))
-        throw std::runtime_error("Expected variable name");
+    if (!match(TokenType::IDENTIFIER)) error("Expected variable name");
 
     std::string name = previous().lexeme;
 
-    if (!match(TokenType::ASSIGN))
-        throw std::runtime_error("Expected '='");
+    if (!match(TokenType::ASSIGN)) error("Expected '='");
 
     auto value = parseExpression();
 
-    if (!match(TokenType::SEMICOLON))
-        throw std::runtime_error("Expected ';'");
+    if (!match(TokenType::SEMICOLON)) error("Expected ';'");
 
     return std::make_unique<AssignmentStmt>(name, std::move(value));
 }
 
 StmtPtr Parser::parseIfStatement() {
-    if (!match(TokenType::KW_IF)) throw std::runtime_error("Expected 'if'");
-    if (!match(TokenType::LPAREN)) throw std::runtime_error("Expected '('");
-    
+    if (!match(TokenType::KW_IF)) error("Expected 'if'");
+    if (!match(TokenType::LPAREN)) error("Expected '('");
+
     auto condition = parseExpression();
 
-    if (!match(TokenType::RPAREN)) throw std::runtime_error("Expected ')'");
-    if (!match(TokenType::LBRACE)) throw std::runtime_error("Expected '{'");
+    if (!match(TokenType::RPAREN)) error("Expected ')'");
+    if (!match(TokenType::LBRACE)) error("Expected '{'");
 
     std::vector<StmtPtr> body;
     while (current().type != TokenType::RBRACE && current().type != TokenType::END) {
         body.push_back(parseStatement());
     }
-    if (!match(TokenType::RBRACE)) throw std::runtime_error("Expected '}'");
+    if (!match(TokenType::RBRACE)) error("Expected '}'");
 
     return std::make_unique<IfStmt>(std::move(condition), std::move(body));
 }
 
 StmtPtr Parser::parseWhileStatement() {
-    if (!match(TokenType::KW_WHILE)) throw std::runtime_error("Expected 'while'");
-    if (!match(TokenType::LPAREN)) throw std::runtime_error("Expected '('");
+    if (!match(TokenType::KW_WHILE)) error("Expected 'while'");
+    if (!match(TokenType::LPAREN)) error("Expected '('");
 
     auto condition = parseExpression();
 
-    if (!match(TokenType::RPAREN)) throw std::runtime_error("Expected ')'");
-    if (!match(TokenType::LBRACE)) throw std::runtime_error("Expected '{'");
+    if (!match(TokenType::RPAREN)) error("Expected ')'");
+    if (!match(TokenType::LBRACE)) error("Expected '{'");
 
     std::vector<StmtPtr> body;
     while (current().type != TokenType::RBRACE && current().type != TokenType::END) {
         body.push_back(parseStatement());
     }
 
-    if (!match(TokenType::RBRACE)) throw std::runtime_error("Expected '}'");
+    if (!match(TokenType::RBRACE)) error("Expected '}'");
 
     return std::make_unique<WhileStmt>(std::move(condition), std::move(body));
 }
 
 DeclPtr Parser::parseFunction() {
-    if (!match(TokenType::KW_INT)) throw std::runtime_error("Expected return type");
-    if (!match(TokenType::IDENTIFIER)) throw std::runtime_error("Expected function name");
+    if (!match(TokenType::KW_INT)) error("Expected return type");
+    if (!match(TokenType::IDENTIFIER)) error("Expected function name");
 
     std::string name = previous().lexeme;
 
-    if (!match(TokenType::LPAREN)) throw std::runtime_error("Expected '('");
+    if (!match(TokenType::LPAREN)) error("Expected '('");
 
     std::vector<std::string> parameters;
     if (current().type != TokenType::RPAREN) {
         while (true) {
-            if (!match(TokenType::KW_INT)) throw std::runtime_error("Expected parameter type");
-            if (!match(TokenType::IDENTIFIER)) throw std::runtime_error("Expected parameter name");
+            if (!match(TokenType::KW_INT)) error("Expected parameter type");
+            if (!match(TokenType::IDENTIFIER)) error("Expected parameter name");
             parameters.push_back(previous().lexeme);
 
             if (!match(TokenType::COMMA)) break;
         }
     }
 
-    if (!match(TokenType::RPAREN)) throw std::runtime_error("Expected ')'");
-    if (!match(TokenType::LBRACE)) throw std::runtime_error("Expected '{'");
+    if (!match(TokenType::RPAREN)) error("Expected ')'");
+    if (!match(TokenType::LBRACE)) error("Expected '{'");
 
     std::vector<StmtPtr> body;
     while (current().type != TokenType::RBRACE && current().type != TokenType::END)
         body.push_back(parseStatement());
 
-    if (!match(TokenType::RBRACE)) throw std::runtime_error("Expected ')'");
+    if (!match(TokenType::RBRACE)) error("Expected ')'");
 
     return std::make_unique<FunctionDecl>(name, std::move(parameters), std::move(body));
 }

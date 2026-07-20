@@ -16,7 +16,7 @@ TACProgram IRGenerator::generate(Program* program) {
         auto* func = dynamic_cast<FunctionDecl*>(decl.get());
         if(!func) continue;
 
-        ir.push_back({"function", "", func->name, ""});
+        ir.push_back({"function", func->name, "", ""});
 
         for (auto& stmt : func->body) generateStatement(stmt.get(), ir);
     }
@@ -40,27 +40,27 @@ void IRGenerator::generateStatement(Stmt* stmt, TACProgram& program) {
         std::string condition = generateExpression(ifStmt->condition.get(), program);
         std::string endLabel = newLabel();
 
-        program.push_back({"ifFalse", "", condition, endLabel});
+        program.push_back({"ifFalse", endLabel, condition, ""});
 
         for (auto& statement : ifStmt->body)
             generateStatement(statement.get(), program);
 
-        program.push_back({"label", "", endLabel, ""});
+        program.push_back({"label", endLabel, "", ""});
         return;
     }
     if (auto whileStmt = dynamic_cast<WhileStmt*>(stmt)) {
         std::string startLabel = newLabel();
         std::string endLabel = newLabel();
 
-        program.push_back({"label", "", startLabel, ""});
+        program.push_back({"label", startLabel, "", ""});
         std::string condition = generateExpression(whileStmt->condition.get(), program);
-        program.push_back({"ifFalse", "", condition, endLabel});
+        program.push_back({"ifFalse", endLabel, condition, ""});
 
         for (auto& statement : whileStmt->body)
             generateStatement(statement.get(), program);
 
-        program.push_back({"goto", "", startLabel, ""});
-        program.push_back({"label", "", endLabel, ""});
+        program.push_back({"goto", startLabel, "", ""});
+        program.push_back({"label", endLabel, "", ""});
 
         return;
     }

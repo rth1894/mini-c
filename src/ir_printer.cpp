@@ -21,22 +21,22 @@ void IRPrinter::print(const TACProgram& program) {
             continue;
         }
         if (inst.op == "function") {
-            std::cout << "\nfunction " << inst.arg1 << ":\n";
+            std::cout << "\nfunction " << inst.result << ":\n";
             continue;
         }
         if (inst.op == "label") {
-            std::cout << inst.arg1 << ":\n";
+            std::cout << inst.result << ":\n";
             continue;
         }
         if (inst.op == "goto") {
-            std::cout << "goto " << inst.arg1 << "\n";
+            std::cout << "goto " << inst.result << "\n";
             continue;
         }
         if (inst.op == "ifFalse") {
-            std::cout << "ifFalse " << inst.arg1 << " goto " << inst.arg2 << "\n";
+            std::cout << "ifFalse " << inst.arg1 << " goto " << inst.result << "\n";
             continue;
         }
 
-        std::cout << inst.result << " = " << inst.arg1 << " " << inst.op << " " << inst.arg2 << "\n";
+        else std::cout << inst.result << " = " << inst.arg1 << " " << inst.op << " " << inst.arg2 << "\n";
     }
 }

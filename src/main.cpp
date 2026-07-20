@@ -1,7 +1,9 @@
 #include <fstream>
 #include <iostream>
 
-// #include "../include/ast_printer.h"
+#include "../include/ast_printer.h"
+#include "../include/cfg_builder.h"
+#include "../include/cfg_printer.h"
 #include "../include/ir_generator.h"
 #include "../include/ir_printer.h"
 #include "../include/lexer.h"
@@ -42,6 +44,11 @@ int main(int argc, char** argv) {
         Optimizer optimizer;
         auto optimizedIR = optimizer.optimize(ir);
 
+        CFGBuilder builder;
+        CFG cfg = builder.build(optimizedIR);
+        CFGPrinter cfgPrinter;
+        cfgPrinter.print(cfg);
+
         LLVMGenerator llvmGen;
         std::string llvmIR = llvmGen.generate(program.get());
         std::ofstream out("output.ll");
@@ -50,13 +57,15 @@ int main(int argc, char** argv) {
 
         std::cout << "Generated LLVM IR: output.ll";
 
-        IRPrinter printer;
-        printer.print(optimizedIR);
+        IRPrinter irPrinter;
+        std::cout << "=== RAW IR ===";
+        irPrinter.print(ir);
 
-        /*
+        std::cout << "=== OPTIMIZED IR ===";
+        irPrinter.print(optimizedIR);
+
         ASTPrinter printer;
         printer.print(program.get());
-        */
     }
     catch (const std::exception& e) {
         std::cerr << "Error:\n" << e.what() << "\n";
